@@ -94,10 +94,10 @@ static
 	macros['^'] = new MetaReader();
 	macros['`'] = new SyntaxQuoteReader();
 	macros['~'] = new UnquoteReader();
-	macros['('] = new ListReader();
-	macros[')'] = new UnmatchedDelimiterReader();
-	macros['['] = new VectorReader();
+	macros['['] = new ListReader();
 	macros[']'] = new UnmatchedDelimiterReader();
+//	macros['['] = new VectorReader();
+//	macros[']'] = new UnmatchedDelimiterReader();
 	macros['{'] = new MapReader();
 	macros['}'] = new UnmatchedDelimiterReader();
 //	macros['|'] = new ArgVectorReader();
