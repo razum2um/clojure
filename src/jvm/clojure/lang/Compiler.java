@@ -102,7 +102,7 @@ static final Symbol IN_NS = Symbol.intern("in-ns");
 
 //static final Symbol IFN = Symbol.intern("clojure.lang", "IFn");
 
-static final public IPersistentMap specials = PersistentHashMap.create(
+static final public IDeref specials = new Atom(PersistentHashMap.create(
 		DEF, new DefExpr.Parser(),
 		LOOP, new LetExpr.Parser(),
 		RECUR, new RecurExpr.Parser(),
@@ -135,7 +135,7 @@ NEW, new NewExpr.Parser(),
 //		UNQUOTE_SPLICING, null,
 //		SYNTAX_QUOTE, null,
 _AMP_, null
-);
+));
 
 private static final int MAX_POSITIONAL_ARITY = 20;
 private static final Type OBJECT_TYPE;
@@ -372,7 +372,8 @@ interface IParser{
 }
 
 static boolean isSpecial(Object sym){
-	return specials.containsKey(sym);
+	IPersistentMap specialsMap = (IPersistentMap) specials.deref();
+	return specialsMap.containsKey(sym);
 }
 
 static boolean inTailCall(C context) {
@@ -7101,9 +7102,10 @@ private static Expr analyzeSeq(C context, ISeq form, String name) {
 		if(inline != null)
 			return analyze(context, preserveTag(form, inline.applyTo(RT.next(form))));
 		IParser p;
+		IPersistentMap specialsMap = (IPersistentMap) specials.deref();
 		if(op.equals(FN))
 			return FnExpr.parse(context, form, name);
-		else if((p = (IParser) specials.valAt(op)) != null)
+		else if((p = (IParser) specialsMap.valAt(op)) != null)
 			return p.parse(context, form);
 		else
 			return InvokeExpr.parse(context, form);

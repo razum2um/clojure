@@ -4970,7 +4970,7 @@
   {:added "1.0"
    :static true}
   [s]
-    (contains? (. clojure.lang.Compiler specials) s))
+    (contains? @(. clojure.lang.Compiler specials) s))
 
 (defn var?
   "Returns true if v is of type clojure.lang.Var"
