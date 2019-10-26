@@ -404,9 +404,9 @@
   (.write w (str b))
   (.write w "N"))
 
-(defmethod print-method java.util.regex.Pattern [p ^Writer w]
+(defmethod print-method clojure.lang.PatternFn [p ^Writer w]
   (.write w "#\"")
-  (loop [[^Character c & r :as s] (seq (.pattern ^java.util.regex.Pattern p))
+  (loop [[^Character c & r :as s] (seq (.pattern ^clojure.lang.PatternFn p))
          qmode false]
     (when s
       (cond
@@ -426,7 +426,7 @@
                    (recur r qmode)))))
   (.append w \"))
 
-(defmethod print-dup java.util.regex.Pattern [p ^Writer w] (print-method p w))
+(defmethod print-dup clojure.lang.PatternFn [p ^Writer w] (print-method p w))
 
 (defmethod print-dup clojure.lang.Namespace [^clojure.lang.Namespace n ^Writer w]
   (.write w "#=(find-ns ")

@@ -2029,6 +2029,10 @@ static public void print(Object x, Writer w) throws IOException{
 			Pattern p = (Pattern) x;
 			w.write("#\"" + p.pattern() + "\"");
 		}
+		else if(x instanceof PatternFn) {
+			PatternFn p = (PatternFn) x;
+			w.write("#\"" + p.pattern() + "\"");
+		}
 		else w.write(x.toString());
 	}
 	//*/

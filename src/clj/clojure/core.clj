@@ -4839,12 +4839,12 @@
 (defn re-pattern
   "Returns an instance of java.util.regex.Pattern, for use, e.g. in
   re-matcher."
-  {:tag java.util.regex.Pattern
-   :added "1.0"
+  {:added "1.0"
    :static true}
-  [s] (if (instance? java.util.regex.Pattern s)
-        s
-        (. java.util.regex.Pattern (compile s))))
+  [s] (cond
+        (instance? java.util.regex.Pattern s) s
+        (instance? clojure.lang.PatternFn s) (.regex ^clojure.lang.PatternFn s)
+        :else (. java.util.regex.Pattern (compile s))))
 
 (defn re-matcher
   "Returns an instance of java.util.regex.Matcher, for use, e.g. in
@@ -4852,7 +4852,7 @@
   {:tag java.util.regex.Matcher
    :added "1.0"
    :static true}
-  [^java.util.regex.Pattern re s]
+  [re s]
     (. re (matcher s)))
 
 (defn re-groups
@@ -4877,7 +4877,7 @@
   re-groups."
   {:added "1.0"
    :static true}
-  [^java.util.regex.Pattern re s]
+  [re s]
   (let [m (re-matcher re s)]
     ((fn step []
        (when (. m (find))
@@ -4889,7 +4889,7 @@
   groups."
   {:added "1.0"
    :static true}
-  [^java.util.regex.Pattern re s]
+  [re s]
     (let [m (re-matcher re s)]
       (when (. m (matches))
         (re-groups m))))

@@ -548,7 +548,7 @@ public static class RegexReader extends AFn{
 				sb.append( (char) ch ) ;
 				}
 			}
-		return Pattern.compile(sb.toString());
+		return PatternFn.compile(sb.toString());
 	}
 }
 

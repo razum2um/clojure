@@ -107,7 +107,7 @@
   fn?  [:fn]
   ifn? [:fn
         :empty-vector :vector :empty-map :map :empty-set :set
-        :keyword :symbol :var]
+        :keyword :symbol :var :empty-regex :regex]
 
   class? [:class]
   var?   [:var]

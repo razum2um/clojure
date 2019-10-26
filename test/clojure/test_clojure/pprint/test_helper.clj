@@ -26,6 +26,8 @@
          (cond 
           (instance? java.util.regex.Pattern y)
           `(is (#'clojure.test-clojure.pprint.test-helper/back-match ~x ~y))
+          (instance? clojure.lang.PatternFn y)
+          `(is (#'clojure.test-clojure.pprint.test-helper/back-match ~x ~(.regex y)))
           (instance? java.lang.String y) `(is (= ~x (platform-newlines ~y)))
           :else `(is (= ~x ~y))))))
 

@@ -45,7 +45,7 @@
      (defn foo [^String x] (.zap x 1))))
   (testing "reflection cannot resolve instance method because it has incompatible argument types"
     (should-print-err-message
-     #"Reflection warning, .*:\d+:\d+ - call to method getBytes on java\.lang\.String can't be resolved \(argument types: java\.util\.regex\.Pattern\)\.\r?\n"
+     #"Reflection warning, .*:\d+:\d+ - call to method getBytes on java\.lang\.String can't be resolved \(argument types: clojure\.lang\.PatternFn\)\.\r?\n"
      (defn foo [^String x] (.getBytes x #"boom"))))
   (testing "reflection cannot resolve instance method because it has unknown argument types"
     (should-print-err-message
@@ -61,7 +61,7 @@
      (defn foo [x] (.zap x 1))))
   (testing "reflection cannot resolve static method"
     (should-print-err-message
-     #"Reflection warning, .*:\d+:\d+ - call to static method valueOf on java\.lang\.Integer can't be resolved \(argument types: java\.util\.regex\.Pattern\)\.\r?\n"
+     #"Reflection warning, .*:\d+:\d+ - call to static method valueOf on java\.lang\.Integer can't be resolved \(argument types: clojure\.lang\.PatternFn\)\.\r?\n"
      (defn foo [] (Integer/valueOf #"boom"))))
   (testing "reflection cannot resolve constructor"
     (should-print-err-message

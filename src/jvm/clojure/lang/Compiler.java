@@ -591,6 +591,20 @@ static class DefExpr implements Expr{
 //					.without(Keyword.intern(null, "added"))
 //					.without(Keyword.intern(null, "static"));
             mm = (IPersistentMap) elideMeta(mm);
+            // FIX for https://github.com/clojure/tools.reader/blob/23bfba4/src/main/clojure/clojure/tools/reader/impl/commons.clj#L46
+            Object tag = RT.get(mm, RT.TAG_KEY);
+			if (tag instanceof Symbol) {
+				Symbol tagSym = (Symbol) tag;
+				Object tagObj = resolve(tagSym);
+				if (tagObj instanceof Class) {
+					Class tagClass = (Class) tagObj;
+					if (tagClass == Pattern.class) {
+						IPersistentMap newmm = (IPersistentMap) RT.dissoc(mm, RT.TAG_KEY);
+						RT.errPrintWriter().format("Compiler found Pattern tag decl:" + mm.toString());
+						mm = newmm;
+					}
+				}
+			}
 			Expr meta = mm.count()==0 ? null:analyze(context == C.EVAL ? context : C.EXPRESSION, mm);
 			return new DefExpr((String) SOURCE.deref(), lineDeref(), columnDeref(),
 			                   v, analyze(context == C.EVAL ? context : C.EXPRESSION, RT.third(form), v.sym.name),

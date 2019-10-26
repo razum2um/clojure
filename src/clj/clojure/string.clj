@@ -41,7 +41,7 @@ Design notes for clojure.string:
   clojure.string
   (:refer-clojure :exclude (replace reverse))
   (:import (java.util.regex Pattern Matcher)
-           clojure.lang.LazilyPersistentVector))
+           (clojure.lang LazilyPersistentVector PatternFn)))
 
 (set! *warn-on-reflection* true)
 
@@ -99,17 +99,18 @@ Design notes for clojure.string:
   {:added "1.2"}
   [^CharSequence s match replacement]
   (let [s (.toString s)]
-    (cond 
-     (instance? Character match) (.replace s ^Character match ^Character replacement)
-     (instance? CharSequence match) (.replace s ^CharSequence match ^CharSequence replacement)
-     (instance? Pattern match) (if (instance? CharSequence replacement)
-                                 (.replaceAll (re-matcher ^Pattern match s)
+    (cond
+      (instance? Character match) (.replace s ^Character match ^Character replacement)
+      (instance? CharSequence match) (.replace s ^CharSequence match ^CharSequence replacement)
+      (instance? Pattern match) (if (instance? CharSequence replacement)
+                                 (.replaceAll (re-matcher match s)
                                               (.toString ^CharSequence replacement))
                                  (replace-by s match replacement))
-     :else (throw (IllegalArgumentException. (str "Invalid match arg: " match))))))
+      (instance? PatternFn match) (replace s (.regex ^PatternFn match) ^CharSequence replacement)
+      :else (throw (IllegalArgumentException. (str "Invalid match arg: " match))))))
 
 (defn- replace-first-by
-  [^CharSequence s ^Pattern re f]
+  [^CharSequence s re f]
   (let [m (re-matcher re s)]
     (if (.find m)
       (let [buffer (StringBuffer. (.length s))
@@ -171,9 +172,11 @@ Design notes for clojure.string:
                         (.toString ^CharSequence replacement))
      (instance? Pattern match)
      (if (instance? CharSequence replacement)
-       (.replaceFirst (re-matcher ^Pattern match s)
+       (.replaceFirst (re-matcher match s)
                       (.toString ^CharSequence replacement))
        (replace-first-by s match replacement))
+     (instance? PatternFn match)
+     (replace-first s (.regex ^PatternFn match) replacement)
      :else (throw (IllegalArgumentException. (str "Invalid match arg: " match))))))
 
 
@@ -216,14 +219,27 @@ Design notes for clojure.string:
   [^CharSequence s]
   (.. s toString toLowerCase))
 
+(defprotocol RawSplit
+  (raw-split [s re] [s re limit]))
+
+;; TODO macros for literal same implementations?
+(extend-protocol RawSplit
+  java.util.regex.Pattern
+  (raw-split ([re s] (.split re s))
+             ([re s limit] (.split re s limit)))
+
+  clojure.lang.PatternFn
+  (raw-split ([re s] (.split re s))
+             ([re s limit] (.split re s limit))))
+
 (defn split
   "Splits string on a regular expression.  Optional argument limit is
   the maximum number of splits. Not lazy. Returns vector of the splits."
   {:added "1.2"}
-  ([^CharSequence s ^Pattern re]
-     (LazilyPersistentVector/createOwning (.split re s)))
-  ([ ^CharSequence s ^Pattern re limit]
-     (LazilyPersistentVector/createOwning (.split re s limit))))
+  ([^CharSequence s re]
+     (LazilyPersistentVector/createOwning (raw-split re s)))
+  ([ ^CharSequence s re limit]
+     (LazilyPersistentVector/createOwning (raw-split re s limit))))
 
 (defn split-lines
   "Splits s on \\n or \\r\\n."
